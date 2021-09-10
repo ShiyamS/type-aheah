@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+  <script>
+    const endpoint =
+      'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+
+    const cities = [];
+
+    fetch(endpoint)
+      .then(response => response.json())
+      .then(data => cities.push(...data));
+
+    function findMatches(whatToFind, cities) {
+      return cities.filter(data => {
+        const regex = new RegExp(whatToFind, "gi")
+        return data.city.match(regex) || data.state.match(regex)
+      })
+    }
+
+    function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function displayMatches(e) {
+
+      const arrayValue = findMatches(this.value, cities);
+      const html = arrayValue.map(data => {
+        const regex = new RegExp(this.value, "gi");
+
+        const city = data.city.replace(regex, `<span class="hl">${this.value}</span>`);
+        const state = data.state.replace(regex, `<span class="hl">${this.value}</span>`);
+
+        return `<li>
+               <span class="name">${city}, ${state}</span>
+               <span class ="name">${numberWithCommas(data.population)}</span>
+          </li>`
+      }).join("");
+
+
+      suggestions.innerHTML = html;
+    }
+
+    const search = document.querySelector(".search");
+    const suggestions = document.querySelector(".suggestions")
+
+
+    search.addEventListener('change', displayMatches);
+    search.addEventListener('keyup', displayMatches);
+
+
+
+
+    // Step 1 : fetch the data as an object and store it in  an Array
+    // Step 2 : find the match in an Array by filtering 
+    // Step 3 : select the input in html search and search the releavent data
+    // Step 4 : Once it searched list the serched places in the list
+    // Step 5 : Higlish the searched words
+  </script>
+</body>
+
+</html>
